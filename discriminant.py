@@ -22,9 +22,7 @@ def calculate_discriminant(a: float, b: float, c: float) -> float:
         ValueError: If a is zero (not a quadratic equation)
     """
     if a == 0:
-        raise ValueError(
-            "Coefficient 'a' cannot be zero in quadratic equation"
-        )
+        raise ValueError("Coefficient 'a' cannot be zero in quadratic equation")
 
     return b**2 - 4 * a * c
 
@@ -73,9 +71,9 @@ if __name__ == "__main__":
 # def bad_function():
 # x=1  # Ошибка: нет отступов!
 # print("no indent")  # Тоже нет отступа!
-# 
+#
 # very_long_variable_name_that_is_way_too_long_and_violates_pep8_guidelines_so_much = 1  # Слишком длинная строка
-# 
+#
 # def another_bad_function(  x , y  ):  # Лишние пробелы
 #     # unused = 123  # Неиспользуемая переменная
 #     return True

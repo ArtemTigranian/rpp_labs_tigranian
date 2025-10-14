@@ -1,7 +1,8 @@
 import unittest
 import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from discriminant import calculate_discriminant, solve_quadratic
 
 
@@ -38,9 +39,11 @@ class TestDiscriminant(unittest.TestCase):
     #     with self.assertRaises(ValueError):
     #         calculate_discriminant(0, 1, 1)
 
-    #ОШИБКА
+    # ОШИБКА
+
+
 # def test_failing_test(self):
 #     self.assertEqual(1, 2)  # Закомментировали сломанный тест
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
