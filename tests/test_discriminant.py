@@ -40,9 +40,7 @@ class TestDiscriminant(unittest.TestCase):
             calculate_discriminant(0, 1, 1)
 
     # ОШИБКА
-
-
-def test_failing_test(self):
+    def test_failing_test(self):
     self.assertEqual(1, 2)  # Закомментировали сломанный тест
 
 if __name__ == "__main__":
