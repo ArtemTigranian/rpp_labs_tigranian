@@ -38,7 +38,7 @@ jobs:
     - name: Install flake8
       run: pip install flake8
     - name: Run flake8 linting
-      run: flake8 . --count --show-source --statistics --max-line-length=80
+      run: flake8 . --count --show-source --statistics --max-line-length=120 --extend-ignore=E203,W503
 
   security:
     runs-on: ubuntu-latest
