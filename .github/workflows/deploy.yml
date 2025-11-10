@@ -1,77 +1,43 @@
-name: CI/CD Pipeline
+name: Deploy to GitHub Pages on Release
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
 
 jobs:
-  test:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-    - name: Install dependencies
-      run: |
-        pip install coverage>=6.0
-        pip install flake8>=4.0.0
-        pip install bandit>=1.7.0
-        pip install black
-        pip install isort
-    - name: Run tests with coverage
-      run: |
-        python -m coverage run -m unittest discover tests/
-        python -m coverage report
 
-  lint:
-    runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-    - name: Install flake8
-      run: pip install flake8
-    - name: Run flake8 linting
-      run: flake8 . --count --show-source --statistics --max-line-length=120 --extend-ignore=E203,W503
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  security:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-    - name: Install bandit
-      run: pip install bandit
-    - name: Run bandit security scan
-      run: bandit -r . -f html -o bandit_report.html || true
-      
-  notify:
-    runs-on: ubuntu-latest
-    needs: [test, lint, security]
-    if: always()
-    
-    steps:
-    - name: Send Telegram notification
-      run: |
-        if [ "${{ needs.test.result }}" == "success" ] && [ "${{ needs.lint.result }}" == "success" ] && [ "${{ needs.security.result }}" == "success" ]; then
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="✅ All checks passed!"
-        else
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="❌ Pipeline failed! Check GitHub Actions"
-        fi
-        
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-content
+
+      - name: Get release version
+        id: get_version
+        run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Prepare deployment
+        run: |
+          mkdir -p build
+          if [ -d "gh-pages-content" ]; then
+            cp -r gh-pages-content/* build/ || true
+          fi
+          mkdir -p build/v${{ steps.get_version.outputs.version }}
+          cp -r ./ru ./en ./index.html ./build/v${{ steps.get_version.outputs.version }}/
+          cp -r ./ru ./en ./index.html ./build/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          force_orphan: false
